@@ -79,7 +79,11 @@ class Assignment(RunestoneDirective):
         assignment_type_id = getOrCreateAssignmentType(assignment_type_name)
 
         if 'deadline' in self.options:
-            deadline = datetime.strptime(self.options['deadline'], '%Y-%m-%d %H:%M')
+            try:
+                deadline = datetime.strptime(self.options['deadline'], '%Y-%m-%d %H:%M')
+            except:
+                deadline = None
+                raise self.warn("Deadline for assignment {} not a valid date/time of %Y-%m-%d %H:%M format".format(self.options['name']))
         else:
             deadline = None
         points = self.options.get('points', 0)
