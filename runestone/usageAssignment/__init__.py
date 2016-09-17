@@ -57,10 +57,21 @@ def visit_ua_node(self,node):
         chapter_data = None
 
     s = ""
+    chapters_and_subchapters = {}
     if chapter_data and course_name:
-        for d in chapter_data:
+        for d in chapter_data: # Set up Chapter-Subchs dictionary
             ch_name, sub_chs = d['ch'], d['sub_chs']
-            s += '<div class="panel-heading">'
+            if d['ch'] not in chapters_and_subchapters:
+                if 'no_exercises' in self.options:
+                    chapters_and_subchapters[d['ch']] = [x for x in d['sub_chs'] if "exercises" not in x.lower()]
+                else:
+                    chapters_and_subchapters[d['ch']] = [x for x in d['sub_chs']]
+            else:
+                for subch in d['sub_chs']:
+                    chapters_and_subchapters[d['ch']].append(subch)
+
+        for ch_name,sub_chs in chapters_and_subchapters.items():
+            s += '<div style="margin-left:150px;" class="panel-heading">'
             s += ch_name
             s += '<ul class="list-group">'
             for sub_ch_name in sub_chs:
@@ -70,7 +81,7 @@ def visit_ua_node(self,node):
             s += '</ul>'
             s += '</div>'
 
-    # is this needed??
+    # is this needed?? 
     s = s.replace("u'","'")  # hack:  there must be a better way to include the list and avoid unicode strings
 
     self.body.append(s)
@@ -101,6 +112,7 @@ class usageAssignment(Directive):
    :deadline: <str>
    :sections: <comma separated int ids of the section objects; kind of a hack>
    :pct_required: <int>   :points: <int>
+   :no_exercises: [optional argument to not include exercises subchs]
 
     """
     required_arguments = 0  # use assignment_name parameter
