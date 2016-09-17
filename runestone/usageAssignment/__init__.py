@@ -62,7 +62,10 @@ def visit_ua_node(self,node):
         for d in chapter_data: # Set up Chapter-Subchs dictionary
             ch_name, sub_chs = d['ch'], d['sub_chs']
             if d['ch'] not in chapters_and_subchapters:
-                chapters_and_subchapters[d['ch']] = [x for x in d['sub_chs']]
+                if 'no_exercises' in self.options:
+                    chapters_and_subchapters[d['ch']] = [x for x in d['sub_chs'] if "exercises" not in x.lower()]
+                else:
+                    chapters_and_subchapters[d['ch']] = [x for x in d['sub_chs']]
             else:
                 for subch in d['sub_chs']:
                     chapters_and_subchapters[d['ch']].append(subch)
@@ -109,6 +112,7 @@ class usageAssignment(Directive):
    :deadline: <str>
    :sections: <comma separated int ids of the section objects; kind of a hack>
    :pct_required: <int>   :points: <int>
+   :no_exercises: [optional argument to not include exercises subchs]
 
     """
     required_arguments = 0  # use assignment_name parameter
