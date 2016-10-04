@@ -472,11 +472,6 @@ ActiveCode.prototype.createGradeSummary = function () {
                        "<p>Number of graded assignments: " + report['count'] + "</p>" +
                        "<p>Average score: " +  report['avg'] + "</p>"
             }
-            var body = "<h4>Grade Report</h4>" +
-                   "<p>This assignment: " + report['grade'] + "</p>" +
-                   "<p>" + report['comment'] + "</p>" +
-                   "<p>Number of graded assignments: " + report['count'] + "</p>" +
-                   "<p>Average score: " +  report['avg'] + "</p>"
 
         } else {
             body = "<h4>The server did not return any grade information</h4>";
