@@ -142,6 +142,7 @@ var SHOWEVAL = (function () {
         });
       }, 600);
     });
+
     this.rb.logBookEvent({"event": "showeval", "act": 'next', "div_id": this.container[0].id});
 
   };

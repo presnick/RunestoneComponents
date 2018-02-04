@@ -267,6 +267,11 @@ class ActiveCode(RunestoneIdDirective):
         else:
             self.options['enabledownload'] = ''
 
+        if 'chatcodes' in self.options:
+            self.options['chatcodes'] = 'data-chatcodes="true"'
+        else:
+            self.options['chatcodes'] = ''
+
         if 'language' not in self.options:
             self.options['language'] = 'python'
 
