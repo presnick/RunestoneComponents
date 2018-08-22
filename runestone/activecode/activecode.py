@@ -22,7 +22,8 @@ from docutils.parsers.rst import directives
 from .textfield import *
 from sqlalchemy import Table
 from runestone.server.componentdb import addQuestionToDB, addHTMLToDB, engine, meta
-from runestone.common.runestonedirective import RunestoneIdDirective, RunestoneNode
+from runestone.common.runestonedirective import (RunestoneIdDirective, RunestoneNode, 
+    add_i18n_js, add_codemirror_css_and_js, add_skulpt_js)
 
 try:
     from html import escape  # py3
@@ -36,23 +37,23 @@ def setup(app):
     app.add_directive('activecode', ActiveCode)
     app.add_directive('actex', ActiveExercise)
     app.add_role('textfield',textfield_role)
-    app.add_stylesheet('codemirror.css')
+    app.add_config_value('activecode_div_class', "runestone explainer ac_section alert alert-warning", 'html')
+    app.add_config_value('activecode_hide_load_history', False, 'html')
+
     app.add_stylesheet('activecode.css')
 
     app.add_javascript('jquery.highlight.js')
     app.add_javascript('bookfuncs.js')
-    app.add_javascript('codemirror.js')
-    app.add_javascript('xml.js')
-    app.add_javascript('css.js')
-    app.add_javascript('htmlmixed.js')
-    app.add_javascript('python.js')
-    app.add_javascript('javascript.js')
-    app.add_javascript('sharedb.js')
+    add_codemirror_css_and_js(app,'xml','css','python','htmlmixed','javascript')
+    add_i18n_js(app, {"en","sr-Cyrl"},"activecode-i18n")
+    add_skulpt_js(app)
     app.add_javascript('activecode.js')
-    app.add_javascript('skulpt.min.js')
-    app.add_javascript('skulpt-stdlib.js')
     app.add_javascript('clike.js')
     app.add_javascript('timed_activecode.js')
+
+
+
+    
 
     app.add_node(ActivcodeNode, html=(visit_ac_node, depart_ac_node))
 
@@ -61,14 +62,14 @@ def setup(app):
 
 
 TEMPLATE_START = """
-<div data-childcomponent="%(divid)s" class="runestone explainer ac_section alert alert-warning">
+<div data-childcomponent="%(divid)s" class="%(divclass)s">
 """
 
 TEMPLATE_END = """
 <textarea data-component="activecode" id=%(divid)s data-lang="%(language)s" %(autorun)s
     %(hidecode)s %(include)s %(timelimit)s %(coach)s %(codelens)s %(enabledownload)s %(chatcodes)s
     data-audio='%(ctext)s' %(sourcefile)s %(datafile)s %(stdin)s
-    %(cargs)s %(largs)s %(rargs)s %(iargs)s %(gradebutton)s %(caption)s>
+    %(cargs)s %(largs)s %(rargs)s %(iargs)s %(gradebutton)s %(caption)s %(hidehistory)s>
 %(initialcode)s
 </textarea>
 </div>
@@ -160,6 +161,11 @@ class ActiveCode(RunestoneIdDirective):
     print("hello world")
     ====
     print("Hidden code, such as unit tests come after the four = signs")
+
+config values (conf.py): 
+
+- activecode_div_class - custom CSS class of the component's outermost div
+- activecode_hide_load_history - if True, hide the load history button
     """
     required_arguments = 1
     optional_arguments = 1
@@ -258,10 +264,6 @@ class ActiveCode(RunestoneIdDirective):
         else:
             self.options['hidecode'] = ''
 
-        if 'chatcodes' in self.options:
-            self.options['chatcodes'] = 'data-chatcodes="true"'
-        else:
-            self.options['chatcodes'] = ''
         if 'enabledownload' in self.options:
             self.options['enabledownload'] = 'data-enabledownload="true"'
         else:
@@ -326,6 +328,12 @@ class ActiveCode(RunestoneIdDirective):
         else:
             self.options['gradebutton'] = "data-gradebutton=true"
 
+        self.options['divclass'] = env.config.activecode_div_class
+        if env.config.activecode_hide_load_history:
+            self.options['hidehistory'] = 'data-hidehistory=true'
+        else:
+            self.options['hidehistory'] = ''
+
         if self.content:
             if '====' in self.content:
                 idx = self.content.index('====')
@@ -353,11 +361,13 @@ class ActiveCode(RunestoneIdDirective):
                 available_files = self.options.get('available_files', "")
             ))
         else:
-            print("Unable to save to source_code table in activecode.py. Possible problems:")
-            print("  1. dburl or course_id are not set in conf.py for your book")
-            print("  2. unable to connect to the database using dburl")
-            print("")
-            print("This should only affect the grading interface. Everything else should be fine.")
+            if not hasattr(env, 'dberr_activecode_reported') or not env.dberr_activecode_reported:
+                env.dberr_activecode_reported = True
+                print("Unable to save to source_code table in activecode.py. Possible problems:")
+                print("  1. dburl or course_id are not set in conf.py for your book")
+                print("  2. unable to connect to the database using dburl")
+                print("")
+                print("This should only affect the grading interface. Everything else should be fine.")
 
 
         acnode = ActivcodeNode(self.options, rawsource=self.block_text)

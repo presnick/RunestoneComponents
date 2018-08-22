@@ -78,7 +78,11 @@ def addQuestionToDB(self):
 
         autograde = self.options.get('autograde', None)
         practice = self.options.get('practice', None)
-        topics = self.options.get('topics', "{}/{}".format(self.chapter, self.subchapter))
+        if ('topics' in self.options) and  (self.options['topics'] != ''):
+            topics = self.options['topics']
+        else:
+            topics = "{}/{}".format(self.chapter, self.subchapter)
+#        topics = self.options.get('topics', "{}/{}".format(self.chapter, self.subchapter))
 
         id_ = self.options['divid']
         sel = select([questions]).where(and_(questions.c.name == id_,
@@ -89,7 +93,7 @@ def addQuestionToDB(self):
                 stmt = questions.update().where(questions.c.id == res['id']).values(question = self.block_text, timestamp=last_changed, is_private='F', question_type=self.name, subchapter=self.subchapter, autograde=autograde, author=author,difficulty=difficulty,chapter=self.chapter, practice=practice, topic=topics)
                 engine.execute(stmt)
             else:
-                ins = questions.insert().values(base_course=basecourse, name=id_, question=self.block_text.encode('utf8'), timestamp=last_changed, is_private='F', question_type=self.name, subchapter=self.subchapter, autograde=autograde, author=author,difficulty=difficulty,chapter=self.chapter, practice=practice, topic=topics)
+                ins = questions.insert().values(base_course=basecourse, name=id_, question=self.block_text, timestamp=last_changed, is_private='F', question_type=self.name, subchapter=self.subchapter, autograde=autograde, author=author,difficulty=difficulty,chapter=self.chapter, practice=practice, topic=topics)
 
                 engine.execute(ins)
         except UnicodeEncodeError:

@@ -52,7 +52,7 @@ class ParsonsTests(RunestoneTestCase):
         self.wait_for_animation("#parsons-1-block-0")
         checkme.click()
         message = self.driver.find_element_by_id("parsons-1-message")
-        self.assertEquals(message.get_attribute("class"), "alert alert-success")
+        self.assertEquals(message.get_attribute("class"), "alert alert-info")
 
         # check that reset works
         reset.click()
@@ -81,22 +81,27 @@ class ParsonsTests(RunestoneTestCase):
         ActionChains(self.driver).drag_and_drop(source.find_element_by_id("parsons-1-block-0"), answer.find_element_by_id("parsons-1-block-1")).perform()
         self.wait_for_animation("#parsons-1-block-0")
         checkme.click()
-        ActionChains(self.driver).drag_and_drop(source.find_element_by_id("parsons-1-block-3"), answer.find_element_by_id("parsons-1-block-0")).perform()
-        self.wait_for_animation("#parsons-1-block-3")
+        reset.click()
+        ActionChains(self.driver).drag_and_drop(source.find_element_by_id("parsons-1-block-2"), answer).perform()
+        ActionChains(self.driver).drag_and_drop(source.find_element_by_id("parsons-1-block-4"), answer.find_element_by_id("parsons-1-block-2")).perform()
+        ActionChains(self.driver).drag_and_drop(source.find_element_by_id("parsons-1-block-1"), answer.find_element_by_id("parsons-1-block-2")).perform()
+        ActionChains(self.driver).drag_and_drop(source.find_element_by_id("parsons-1-block-0"), answer.find_element_by_id("parsons-1-block-1")).perform()
+        self.wait_for_animation("#parsons-1-block-0")
         checkme.click()
-        ActionChains(self.driver).drag_and_drop(answer.find_element_by_id("parsons-1-block-3"), answer.find_element_by_id("parsons-1-block-4")).perform()
-        self.wait_for_animation("#parsons-1-block-3")
-        checkme.click()     
+        reset.click()
+        ActionChains(self.driver).drag_and_drop(source.find_element_by_id("parsons-1-block-2"), answer).perform()
+        ActionChains(self.driver).drag_and_drop(source.find_element_by_id("parsons-1-block-4"), answer.find_element_by_id("parsons-1-block-2")).perform()
+        ActionChains(self.driver).drag_and_drop(source.find_element_by_id("parsons-1-block-0"), answer.find_element_by_id("parsons-1-block-4")).perform()
+        ActionChains(self.driver).drag_and_drop(source.find_element_by_id("parsons-1-block-1"), answer.find_element_by_id("parsons-1-block-0")).perform()
+        self.wait_for_animation("#parsons-1-block-1")
+        checkme.click()
         self.assertTrue(self.wait_and_close_alert())
-        ActionChains(self.driver).drag_and_drop(answer.find_element_by_id("parsons-1-block-3"), source).perform()
-        self.wait_for_animation("#parsons-1-block-3")
-
-        helpBtn.click() # remove incorrect
+        helpBtn.click()     
+        print('Help 1')
         self.assertTrue(self.wait_and_close_alert())    
         self.wait_for_animation("#parsons-1-block-4")
         b4 = source.find_element_by_id("parsons-1-block-4")
         self.assertEquals(b4.get_attribute("class"), "block disabled");
-
         helpBtn.click() # provide Indentation
         self.assertTrue(self.wait_and_close_alert())
         self.wait_for_animation("#parsons-1-block-4")

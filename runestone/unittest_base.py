@@ -1,5 +1,6 @@
 import unittest
 import os
+import sys
 import platform
 import subprocess
 from selenium import webdriver
@@ -69,7 +70,7 @@ def module_fixture_maker(module_path, return_mf=False):
 class RunestoneTestCase(unittest.TestCase):
     def setUp(self):
         # `PyVirtualDisplay <http://pyvirtualdisplay.readthedocs.io/en/latest/>`_ only runs on X-windows, meaning Linux. Mac seems to have `some support <https://support.apple.com/en-us/HT201341>`_. Windows is out of the question.
-        if os.name != 'nt':
+        if sys.platform.startswith('linux'):
             self.display = Display(visible=0, size=(1280, 1024))
             self.display.start()
         else:
@@ -80,7 +81,7 @@ class RunestoneTestCase(unittest.TestCase):
         # options.add_argument("window-size=1200x800")
         #self.driver = webdriver.Chrome(chrome_options=options)  # good for development.
         self.driver = webdriver.Chrome()  # good for development.
-
+        self.driver.implicitly_wait(10)
 
         self.host = 'http://127.0.0.1:' + PORT
 
