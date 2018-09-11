@@ -172,7 +172,7 @@ function isLoggedIn() {
 
 function handleLoginLogout() {
     if (shouldLogin()) {
-        data = {timezoneoffset: (new Date()).getTimezoneOffset()/60 }
+        data = { timezoneoffset: (new Date()).getTimezoneOffset() }
         jQuery.get(eBookConfig.ajaxURL + 'getuser', data, gotUser).error(notifyRunestoneComponents);
     } else {
         $(document).trigger("runestone:logout")
