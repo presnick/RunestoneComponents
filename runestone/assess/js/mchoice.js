@@ -34,6 +34,7 @@ MultipleChoice.prototype.init = function (opts) {
     this.useRunestoneServices = opts.useRunestoneServices;
     this.multipleanswers = false;
     this.divid = orig.id;
+    this.caption = 'Multiple Choice'
 
     if ($(this.origElem).data("multipleanswers") === true) {
         this.multipleanswers = true;
@@ -60,6 +61,8 @@ MultipleChoice.prototype.init = function (opts) {
     this.createCorrectList();
     this.createMCForm();
     this.checkServer("mChoice");
+
+    this.addCaption('runestone');
 };
 
 /*====================================
@@ -211,7 +214,7 @@ MultipleChoice.prototype.renderMCFormButtons = function () {
     // submit and compare me buttons
     // Create submit button
     this.submitButton = document.createElement("button");
-    this.submitButton.textContent = "Check Me";
+    this.submitButton.textContent = $.i18n("msg_mchoice_check_me");
     $(this.submitButton).attr({
         "class": "btn btn-success",
         "name": "do answer",
@@ -238,7 +241,7 @@ MultipleChoice.prototype.renderMCFormButtons = function () {
             "disabled": "",
             "name": "compare"
         });
-        this.compareButton.textContent = "Compare me";
+        this.compareButton.textContent = $.i18n("msg_mchoice_compare_me");
         this.compareButton.addEventListener("click", function () {
             this.compareAnswers(this.divid);
         }.bind(this), false);
@@ -424,14 +427,13 @@ MultipleChoice.prototype.renderMCMAFeedBack = function () {
     var feedbackText = this.feedbackString;
 
     if (this.correct) {
-        $(this.feedBackDiv).html('✔️ <ol type="A">' + feedbackText + "</ul>");
+        $(this.feedBackDiv).html('✔️' +  $.i18n("msg_mchoice_correct_answer") + '<ol type="A">' + feedbackText + "</ul>");
         $(this.feedBackDiv).attr("class", "alert alert-info");
     } else {
-        $(this.feedBackDiv).html("✖️ " + "You gave " + numGiven +
-            " " + answerStr + " and got " + numCorrect + " correct of " +
-            numNeeded + ' needed.<ol type="A">' + feedbackText + "</ul>");
+        $(this.feedBackDiv).html("✖️ " + $.i18n("msg_mchoice_incorrect_answer", numGiven, answerStr, numCorrect, numNeeded) + '<ol type="A">' + feedbackText + "</ul>");
         $(this.feedBackDiv).attr("class", "alert alert-danger");
     }
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
 };
 
 MultipleChoice.prototype.processMCMFSubmission = function (logFlag) {
@@ -476,6 +478,7 @@ MultipleChoice.prototype.renderMCMFFeedback = function (correct, feedbackText) {
         $(this.feedBackDiv).html("✖️ " + feedbackText);
         $(this.feedBackDiv).attr("class", "alert alert-danger");
     }
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
 };
 
 MultipleChoice.prototype.enableMCComparison = function () {
